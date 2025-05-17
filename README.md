@@ -26,14 +26,19 @@ Follow these steps to install and set up the project directly from the GitHub re
    cd hand-tracking-mediapipe-opencv
    ```
 
-2. Install the required libraries using poetry
+2. Install the required libraries using uv
 
    ```sh
-   poetry install
+   uv sync
    ```
 
-3. Run the Project
+3. Run the Project using the webcam as input
 
    ```sh
-   python app.py
+   uv run main.py
    ```
+
+3.1 Run the Project using a video file as input
+
+   ```sh
+   uv run main.py --video_path=data/video_input.mp4

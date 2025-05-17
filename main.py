@@ -2,9 +2,29 @@ import cv2
 import mediapipe as mp
 import time
 import logging
+import argparse
+import os
 
-# Setup video capture from webcam
-cap = cv2.VideoCapture(0)
+# Setup argument parser
+parser = argparse.ArgumentParser(description="Hand tracking with MediaPipe")
+parser.add_argument(
+    "--video_path",
+    type=str,
+    default="0",
+    help="Path to video file (default: use webcam)",
+)
+args = parser.parse_args()
+
+# Setup video capture from file or webcam
+if args.video_path != "0":
+    if not os.path.exists(args.video_path):
+        raise FileNotFoundError(f"Video file not found: {args.video_path}")
+    cap = cv2.VideoCapture(args.video_path)
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    print(f"Video properties: {total_frames} frames, {fps} FPS")
+else:
+    cap = cv2.VideoCapture(0)
 
 # Load MediaPipe hands model
 mphands = mp.solutions.hands
@@ -54,8 +74,24 @@ while True:
         thickness=2,
     )
 
+    # Display video progress if using file
+    if args.video_path != "0":
+        current_frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
+        progress = int((current_frame / total_frames) * 100)
+        cv2.putText(
+            img=img,
+            text=f"Progress: {progress}%",
+            org=(10, 60),
+            fontFace=cv2.FONT_HERSHEY_PLAIN,
+            fontScale=2,
+            color=(255, 0, 255),
+            thickness=2,
+        )
+
     # Display the image
     cv2.imshow("Image", img)
+
+    # Break if 'q' pressed or video ends
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
